@@ -1,0 +1,49 @@
+\begin{thebibliography}{10}
+
+\bibitem{lent1993}
+C.~S. Lent, P.~D. Tougaw, W.~Porod, and G.~H. Bernstein, ``Quantum cellular
+  automata,'' {\em Nanotechnology}, vol.~4, no.~1, p.~49, 1993.
+
+\bibitem{tougaw1994}
+P.~D. Tougaw and C.~S. Lent, ``Logical devices implemented using quantum
+  cellular automata,'' {\em Journal of Applied Physics}, vol.~75, no.~3,
+  pp.~1818--1825, 1994.
+
+\bibitem{lent1997}
+C.~S. Lent and P.~D. Tougaw, ``A device architecture for computing with quantum
+  dots,'' {\em Proceedings of the IEEE}, vol.~85, no.~4, pp.~541--557, 1997.
+
+\bibitem{cowburn2000}
+R.~Cowburn and M.~Welland, ``Room temperature magnetic quantum cellular
+  automata,'' {\em Science}, vol.~287, no.~5457, pp.~1466--1468, 2000.
+
+\bibitem{toffoli1980}
+T.~Toffoli, ``Reversible computing,'' in {\em Proceedings of the 7th Colloquium
+  on Automata, Languages and Programming}, (London, UK, UK), pp.~632--644,
+  Springer-Verlag, 1980.
+
+\bibitem{mittr2011}
+``The fantastical promise of reversible computing.''
+  \url{https://www.technologyreview.com/s/422511/the-fantastical-promise-of-reversible-computing},
+  2011.
+
+\bibitem{frank2017}
+M.~P. Frank, ``Throwing computing into reverse,'' {\em IEEE Spectrum}, vol.~54,
+  no.~9, pp.~32--37, 2017.
+
+\bibitem{arute2019quantum}
+F.~Arute, K.~Arya, R.~Babbush, D.~Bacon, J.~C. Bardin, R.~Barends, R.~Biswas,
+  S.~Boixo, F.~G. Brandao, D.~A. Buell, {\em et~al.}, ``Quantum supremacy using
+  a programmable superconducting processor,'' {\em Nature}, vol.~574, no.~7779,
+  pp.~505--510, 2019.
+
+\bibitem{wu2021strong}
+Y.~Wu, W.-S. Bao, S.~Cao, F.~Chen, M.-C. Chen, X.~Chen, T.-H. Chung, H.~Deng,
+  Y.~Du, D.~Fan, {\em et~al.}, ``Strong quantum computational advantage using a
+  superconducting quantum processor,'' {\em arXiv preprint arXiv:2106.14734},
+  2021.
+
+\bibitem{qca:mraz}
+M.~Mraz, ``Kvantni celični avtomati,'' 2025.
+
+\end{thebibliography}

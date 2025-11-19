@@ -1,0 +1,58 @@
+\extrachap{Navodila za izdelavo seminarske naloge}
+\begin{itemize}
+\item Vaše datoteke se nahajajo v direktorijih \texttt{Skupina*}, kjer \texttt{*} predstavlja številko vaše skupine - glavna datoteka je \texttt{main.tex}.
+\item Slike shranjujte v svoj direktorij.
+\item Vse labele začnite z znaki \texttt{g*:}, kjer \texttt{*} predstavlja številko vaše skupine.
+\item Pri navajanju virov uporabite datoteko \texttt{references.bib}, ki se nahaja v korenskem direktoriju projekta.
+\item Pred dodajanjem novih virov v datoteko \texttt{references.bib} dobro preverite, če je vir mogoče že vsebovan v datoteki - v tem primeru se sklicujte na obstoječ vnos.
+\end{itemize}
+
+
+V okviru prvega seminarja se boste ukvarjali s procesnimi platformami, ki za delovanje izkoriščajo kvantne pojave. Delo bo potekalo v skupinah s štirimi študenti. Za skupinsko delo uporabljajte repozitorij, kot je npr. dropbox\footnote{\url{https://www.dropbox.com}} ali git\footnote{\url{https://bitbucket.org}}. Cilj seminarja so izdelki in poročila, ki jih lahko ob zaključku združimo v celoto (glej rezultate seminarjev iz prejšnjih let). Poročilo pišite v okolju LaTeX, kjer lahko za lažje skupinsko delo uporabljate okolje, kot je npr. overleaf\footnote{\url{https://www.overleaf.com/}}. Za iskanje virov uporabljajte iskalnike znanstvene literature\footnote{\url{https://scholar.google.si}, \url{www.sciencedirect.com}, \url{https://www.scopus.com}, \url{https://arxiv.org}, \url{http://citeseerx.ist.psu.edu}}. Rok za izdelavo prvega seminarja je 23. 11. 2025. Predstavitve nalog bodo v tednu od 24. 11. 2025 v terminu vaj. Na zagovoru seminarja bo imela vsaka skupina 10 minutno predstavitev svojega izdelka, nato bo sledila krajša diskusija.
+
+Za predlogo uporabite strukturo znanstvenega članka, ki obsega poglavja Uvod, Metode, Rezultati, Zaključek in Literatura. Slike naj bodo v formatu PDF ali EPS, z ustreznimi viri (literaturo) polnite vašo BIB datoteko. Poročilo redno izpopolnjujte. Ker gre za skupinsko delo, mora biti na koncu poročila tudi poglavje z naslovom Doprinosi avtorjev, kjer v enem stavku zapišite, kakšen je bil doprinos posameznega člana skupine.
+
+
+
+
+\section*{Kvantni celični avtomati}
+\label{g00:sec:qca}
+
+Ena izmed tem za prvi seminar je področje kvantnih celičnih avtomatov (angl. QCA) \cite{lent1993, tougaw1994, lent1997, cowburn2000}, ki so možna alternativna tehnologija procesiranja v prihodnosti. Cilj seminarja je lahko na primer zasnova in realizacija reverzibilne QCA strukture v okolju QCADesigner. Reverzibilno procesiranje je opisano v \cite{toffoli1980, mittr2011, frank2017}. Primera osnovnih univerzalnih reverzibilnih logičnih operatorjev sta Toffolijeva in Fredkinova vrata. V seminarju izdelajte kompleksnejšo reverzibilno strukturo, na primer polni seštevalnik, LFSR (pomikalni register z linearno povratno vezavo) itd. Potreben pogoj za fizično reverzibilnost je logična reverzibilnost. Zato najprej zasnujte logično reverzibilno QCA strukturo. Logična reverzibilnost pomeni, da lahko iz logičnih vrednosti izhodov enolično določimo logične vrednosti vhodov, torej med vhodi in izhodi obstaja bijektivna preslikava. Nato poskusite z orodjem QCADesigner zasnovati še fizično reverzibilno strukturo QCA. Slednja mora biti najprej logično reverzibilna. Poleg tega mora izpolnjevati tudi dodatni pogoj: če spremenimo izhodne celice v vhodne in obratno ter določimo vhodne logične vrednosti (na prej izhodnih celicah), moramo na izhodih (prej vhodne celice) dobiti ustrezne vrednosti, določene z bijekcijo. Z reverzibilno strukturo lahko torej izračunamo vrednost bijektivne funkcije (npr. pretvorbo v dvojiški komplement, izračun zgoščevalnih (hash) funkcij itd.) in z zamenjavo vhodov in izhodov tudi njeno inverzno vrednost.
+
+V poglavju Metode opišite, ali ste uporabili ad hoc metodo ali ste formalizirali metodo snovanja QCA strukture. Navedite tudi, ali prosto določite urino cono vsaki posamezni QCA celici ali je vaša struktura zasnovana z uporabo strukturiranih pravokotnih urinih con.
+
+QCA strukturo izdelajte s pomočjo orodja QCADesigner, s katerim tudi simulirajte in testirajte njeno delovanje. Poročilo izdelajte v okolju LaTeX in dopolnjujte repozitorij s pripadajočimi datotekami (QCAD datoteke, slike itd.).
+
+
+
+\newpage
+\section*{Kvantni računalniki}
+\label{g00:sec:qc}
+
+Danes v računalništvu prevladujoča tehnologija CMOS se z miniaturizacijo tranzistorjev bliža vrhuncu učinkovitosti, ko je zaradi fizikalnih omejitev ne bo več možno izboljševati. Za nadaljnji napredek strojne računalniške opreme bo nujno prevzeti katero od alternativnih procesnih platform. Ena od teh je kvantno računalništvo, ki za procesiranje izkorišča kvantne pojave in operira z delci na nanometrskem nivoju. Poleg tega teoretične raziskave in tudi praktične implementacije prikazujejo večjo zmogljivost kvantnega računalništva od današnje tehnologije.
+
+Kvantno računalništvo se s hitrim razvojem kaže kot perspektivna alternativa za dopolnitev in nadomestitev tehnologije CMOS. Številna velika podjetja so razvila in izdelala svoje kvantne računalnike ter prikazala njihovo delovanje. Med najbolj znanimi so izvedbe:
+\begin{itemize}
+	\item \href{https://www.ibm.com/quantum-computing/}{IBM},
+	\item \href{https://quantumai.google/}{Google},
+	\item \href{https://www.intel.com/content/www/us/en/research/quantum-computing.html}{Intel},
+	\item \href{https://www.rigetti.com/}{Rigetti},
+	\item \href{https://www.dwavesys.com/}{D-Wave Systems}
+	\item ter mnoga druga podjetja in univerze po celem svetu.
+\end{itemize}
+
+Raziskovalci so predstavili kvantne algoritme (npr. Shorov in Groverjev), ki imajo manjšo časovno kompleksnost kot najboljši klasični algoritmi. To bi lahko privedlo do eksponentno hitrejšega reševanja določenih problemov, vendar zaenkrat praktične implementacije teh algoritmov še niso skalabilne. V zadnjem času pa so fizično izdelali kvantne računalnike, ki nekatere probleme rešijo hitreje od najzmogljivejših klasičnih računalnikov, s čimer so prikazali t.i. "quantum supremacy". Med najbolj odmevnimi izvedbami sta Googlov procesor Sycamore \cite{arute2019quantum} in računalnik Zuchongzhi, razvit na univerzi USTC \cite{wu2021strong}.
+
+Cilj seminarske naloge s področja kvantnega računalništva je spoznavanje osnovnih konceptov te procesne platforme. V nadaljevanju je naštetih nekaj predlogov tem (odebeljeno besedilo). Za seminarsko nalogo si izberite eno izmed njih, lahko pa predlagate tudi kakšno drugo temo s tega področja.
+
+Ker kvantni računalniki še niso v splošni uporabi, se za analizo delovanja uporabljajo razni simulatorji, s katerimi lahko načrtujemo, implementiramo in simuliramo delovanje kvantnih algoritmov. V številnih programskih jezikih je bilo razvitih mnogo simulatorjev z različnimi funkcijami in lastnostmi. Obsežen seznam se nahaja na spletni strani \href{https://quantiki.org/wiki/list-qc-simulators}{Quantiki}. Ena izmed tem seminarske naloge je \textbf{načrtovanje in implementacija kvantnih algoritmov v več različnih simulatorjih}. Pri tem predstavite prednosti in slabosti izbranih simulatorjev in njihove koristne funkcije.
+
+Za fizično implementacijo kvantnih računalnikov so raziskovalci ponudili številne tehnologije in v izbranih dejansko realizirali procesorje. Med tehnologijami so superprevodna vezja, ujeti ioni, kvantne pike, jedrska magnetna resonanca, uporaba fotonov, elektronov in številni drugi predlogi. V seminarski nalogi lahko \textbf{predstavite predlagane tehnologije, njihove prednosti in slabosti ter primere fizične implementacije}.
+
+Razvitih je bilo mnogo kvantnih algoritmov, ki predstavljajo reševanje problemov učinkoviteje kot s klasičnimi računalniki. V seminarju lahko \textbf{izvedete podrobno analizo kompleksnega kvantnega algoritma}. Pri tem algoritem načrtujete in implementirate v simulatorju, analizirate njegovo kompleksnost, simulirate delovanje z različnimi vhodnimi podatki in predlagate možne optimizacije katerega od parametrov algoritma.
+
+Sčasoma želimo splošno uporabljati univerzalne kvantne računalnike, s katerimi lahko izvedemo poljubno aplikacijo, kot sedaj to omogočajo klasična vezja. Trenutno pa realizacije kvantnih računalnikov prikazujejo svojo učinkovitost pri reševanju specifičnih nesplošnih problemov. \textbf{Navedite nekatere od teh problemskih področij (npr. boson sampling), jih podrobno opišite in predstavite obstoječe ter potencialne rešitve}.
+
+Za izdelavo skalabilnih kvantnih računalnikov je zelo pomembno popravljanje napak pri kvantnem procesiranju, ki se zaradi lastnosti kvantnih delcev precej razlikuje od popravljanja napak pri klasičnem procesiranju. \textbf{Podrobno preučite algoritme za popravljanje napak pri kvantnem procesiranju, jih implementirajte, prikažite njihovo delovanje z uporabo simulatorja in analizirajte njihove lastnosti}.
+

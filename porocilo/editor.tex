@@ -1,0 +1,113 @@
+%%%%%%%%%%%%%%%%%%%%%%%% editor.tex %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% sample root file for the contributions of a "contributed volume"
+%
+% Use this file as a template for your own input.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Springer %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% RECOMMENDED %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[graybox, envcountchap]{svmult}
+
+% choose options for [] as required from the list
+% in the Reference Guide
+
+\usepackage{mathptmx}        % selects Times Roman as basic font
+\usepackage{helvet}          % selects Helvetica as sans-serif font
+\usepackage{courier}         % selects Courier as typewriter font
+%\usepackage{type1cm}        % activate if the above 3 fonts are 
+% not available on your system
+
+\usepackage{makeidx}         % allows index generation
+\usepackage{graphicx}        % standard LaTeX graphics tool
+% when including figure files
+\usepackage{hyperref}
+\usepackage{epsfig}
+\graphicspath{{./}}
+\usepackage{multicol}        % used for the two-column index
+\usepackage[bottom]{footmisc}% places footnotes at page bottom
+
+\usepackage{epstopdf}
+
+
+\usepackage{amsmath}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{amssymb}
+
+\usepackage{graphicx}
+\usepackage{xurl}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{amsmath}
+
+\usepackage{epstopdf}
+\usepackage{comment}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+
+
+% see the list of further useful packages in the Reference Guide
+
+\makeindex             % used for the subject index
+                       % please use the style svind.ist with
+                       % your makeindex program
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Added by Overleaf to facilitate author contributions in folders
+\usepackage{import}
+\usepackage[utf8]{inputenc}
+
+\usepackage[slovene]{babel}
+\setlocalecaption{slovene}{theorem}{Izrek}
+\setlocalecaption{slovene}{definition}{Definicija}
+
+
+
+\begin{document}
+
+
+\extrachap{Kvantni celični avtomati in kvantno procesiranje}
+\large Uredila dr. Miha Janež in prof. dr. Miha Mraz\\
+\\
+\normalsize \emph{oktober 2025}
+
+
+
+%\frontmatter%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\include{EditorContents/predgovor}
+\include{EditorContents/navodila}
+
+\tableofcontents
+
+
+
+%\mainmatter%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\import{Skupina01/}{main}
+\import{Skupina02/}{main}
+
+%
+
+%\backmatter%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\backmatter
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+
+
+%\printindex
+
+\end{document}
+
