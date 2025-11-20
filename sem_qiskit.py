@@ -12,6 +12,7 @@ from qiskit.visualization import plot_histogram
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_ibm_runtime import SamplerV2 as Sampler
+from qiskit_ibm_runtime.fake_provider import FakeManilaV2
 
 def M2mod15():
     """
@@ -35,8 +36,10 @@ M2 = M2mod15()
 # Add it to a circuit and plot
 circ = QuantumCircuit(4)
 circ.compose(M2, inplace=True)
-circ.decompose(reps=2).draw(output="mpl", fold=-1)
-plt.show()
+if input("Draw circuit? ") in ["Y", "y", "yes"]:
+    circ.decompose(reps=int(input("Number of decompositions: "))).draw(output="mpl", fold=-1)
+    plt.show()
+a = input("Enter to continue. ")
 
 def controlled_M2mod15():
     """
@@ -61,11 +64,10 @@ controlled_M2 = controlled_M2mod15()
 # Add it to a circuit and plot
 circ = QuantumCircuit(5)
 circ.compose(controlled_M2, inplace=True)
-circ.decompose(reps=1).draw(output="mpl", fold=-1)
-plt.show()
-
-circ.decompose(reps=2).draw(output="mpl", fold=-1)
-plt.show()
+if input("Draw circuit? ") in ["Y", "y", "yes"]:
+    circ.decompose(reps=int(input("Number of decompositions: "))).draw(output="mpl", fold=-1)
+    plt.show()
+a = input("Enter to continue. ")
 
 def a2kmodN(a, k, N):
     """Compute a^{2^k} (mod N) by repeated squaring"""
@@ -100,8 +102,10 @@ M4 = M4mod15()
 # Add it to a circuit and plot
 circ = QuantumCircuit(4)
 circ.compose(M4, inplace=True)
-circ.decompose(reps=2).draw(output="mpl", fold=-1)
-plt.show()
+if input(f"Draw circuit? ") in ["Y", "y", "yes"]:
+    circ.decompose(reps=int(input("Number of decompositions: "))).draw(output="mpl", fold=-1)
+    plt.show()
+a = input("Enter to continue. ")
 
 def controlled_M4mod15():
     """
@@ -125,11 +129,10 @@ controlled_M4 = controlled_M4mod15()
 # Add it to a circuit and plot
 circ = QuantumCircuit(5)
 circ.compose(controlled_M4, inplace=True)
-circ.decompose(reps=1).draw(output="mpl", fold=-1)
-plt.show()
-
-circ.decompose(reps=2).draw(output="mpl", fold=-1)
-plt.show()
+if input(f"Draw circuit? ") in ["Y", "y", "yes"]:
+    circ.decompose(reps=int(input("Number of decompositions: "))).draw(output="mpl", fold=-1)
+    plt.show()
+a = input("Enter to continue. ")
 
 def mod_mult_gate(b, N):
     """
@@ -219,8 +222,8 @@ circuit.draw("mpl", fold=-1)
 plt.show()
 
 
-service = QiskitRuntimeService()
-backend = service.backend("ibm_marrakesh")
+#service = QiskitRuntimeService()
+backend = FakeManilaV2() #service.backend("ibm_marrakesh")
 pm = generate_preset_pass_manager(optimization_level=2, backend=backend)
 
 transpiled_circuit = pm.run(circuit)
