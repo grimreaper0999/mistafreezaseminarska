@@ -223,7 +223,7 @@ plt.show()
 
 
 #service = QiskitRuntimeService()
-backend = FakeManilaV2() #service.backend("ibm_marrakesh")
+backend = FakeAuckland() #service.backend("ibm_marrakesh")
 pm = generate_preset_pass_manager(optimization_level=2, backend=backend)
 
 transpiled_circuit = pm.run(circuit)
