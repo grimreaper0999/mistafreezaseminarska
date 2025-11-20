@@ -36,7 +36,7 @@ M2 = M2mod15()
 # Add it to a circuit and plot
 circ = QuantumCircuit(4)
 circ.compose(M2, inplace=True)
-if input("Draw circuit? ") in ["Y", "y", "yes"]:
+if input("Draw circuit M2mod15? ") in ["Y", "y", "yes"]:
     circ.decompose(reps=int(input("Number of decompositions: "))).draw(output="mpl", fold=-1)
     plt.show()
 a = input("Enter to continue. ")
@@ -64,7 +64,7 @@ controlled_M2 = controlled_M2mod15()
 # Add it to a circuit and plot
 circ = QuantumCircuit(5)
 circ.compose(controlled_M2, inplace=True)
-if input("Draw circuit? ") in ["Y", "y", "yes"]:
+if input("Draw circuit controlled M2mod15? ") in ["Y", "y", "yes"]:
     circ.decompose(reps=int(input("Number of decompositions: "))).draw(output="mpl", fold=-1)
     plt.show()
 a = input("Enter to continue. ")
@@ -102,7 +102,7 @@ M4 = M4mod15()
 # Add it to a circuit and plot
 circ = QuantumCircuit(4)
 circ.compose(M4, inplace=True)
-if input(f"Draw circuit? ") in ["Y", "y", "yes"]:
+if input(f"Draw circuit M4mod15? ") in ["Y", "y", "yes"]:
     circ.decompose(reps=int(input("Number of decompositions: "))).draw(output="mpl", fold=-1)
     plt.show()
 a = input("Enter to continue. ")
@@ -129,7 +129,7 @@ controlled_M4 = controlled_M4mod15()
 # Add it to a circuit and plot
 circ = QuantumCircuit(5)
 circ.compose(controlled_M4, inplace=True)
-if input(f"Draw circuit? ") in ["Y", "y", "yes"]:
+if input(f"Draw circuit controlled M4mod15? ") in ["Y", "y", "yes"]:
     circ.decompose(reps=int(input("Number of decompositions: "))).draw(output="mpl", fold=-1)
     plt.show()
 a = input("Enter to continue. ")
@@ -143,10 +143,12 @@ def mod_mult_gate(b, N):
     else:
         n = floor(log(N - 1, 2)) + 1
         U = np.full((2**n, 2**n), 0)
+
         for x in range(N):
             U[b * x % N][x] = 1
         for x in range(N, 2**n):
             U[x][x] = 1
+
         G = UnitaryGate(U)
         G.name = f"M_{b}"
         return G
@@ -162,18 +164,19 @@ circ = circ.decompose()
 # Transpile the circuit and get the depth
 coupling_map = CouplingMap.from_line(4)
 pm = generate_preset_pass_manager(coupling_map=coupling_map)
+
+a = input("Enter to run the mod_mult_gate(2, 15) circuit. ")
 transpiled_circ = pm.run(circ)
 
 print(f"qubits: {circ.num_qubits}")
-print(
-    f"2q-depth: {transpiled_circ.depth(lambda x: x.operation.num_qubits==2)}"
-)
+print(f"2q-depth: {transpiled_circ.depth(lambda x: x.operation.num_qubits==2)}")
 print(f"2q-size: {transpiled_circ.size(lambda x: x.operation.num_qubits==2)}")
 print(f"Operator counts: {transpiled_circ.count_ops()}")
-transpiled_circ.decompose().draw(
-    output="mpl", fold=-1, style="clifford", idle_wires=False
-)
-plt.show()
+
+if input(f"Draw transpiled circuit mod_mult_gate(2, 15)? ") in ["Y", "y", "yes"]:
+    transpiled_circ.decompose().draw(output="mpl", fold=-1, style="clifford", idle_wires=False)
+    plt.show()
+a = input("Enter to continue. ")
 
 # Order finding problem for N = 15 with a = 2
 N = 15
@@ -218,28 +221,29 @@ circuit.compose(QFT(num_control, inverse=True), qubits=control, inplace=True)
 # Measure the control register
 circuit.measure(control, output)
 
-circuit.draw("mpl", fold=-1)
-plt.show()
+if input(f"Draw full order 2 of 15 circuit? ") in ["Y", "y", "yes"]:
+    circuit.draw("mpl", fold=-1)
+    plt.show()
+a = input("Enter to continue. ")
 
 
 #service = QiskitRuntimeService()
 backend = FakeAuckland() #service.backend("ibm_marrakesh")
 pm = generate_preset_pass_manager(optimization_level=2, backend=backend)
 
+a = input("Press enter to run the circuit on the FakeAuckland backend.")
 transpiled_circuit = pm.run(circuit)
 
-print(
-    f"2q-depth: {transpiled_circuit.depth(lambda x: x.operation.num_qubits==2)}"
-)
-print(
-    f"2q-size: {transpiled_circuit.size(lambda x: x.operation.num_qubits==2)}"
-)
+print(f"2q-depth: {transpiled_circuit.depth(lambda x: x.operation.num_qubits==2)}")
+print(f"2q-size: {transpiled_circuit.size(lambda x: x.operation.num_qubits==2)}")
 print(f"Operator counts: {transpiled_circuit.count_ops()}")
-transpiled_circuit.draw(
-    output="mpl", fold=-1, style="clifford", idle_wires=False
-)
 
-# Rows to be displayed in table
+if input(f"Draw transpiled full order 2 of 15 circuit? ") in ["Y", "y", "yes"]:
+    transpiled_circuit.draw(output="mpl", fold=-1, style="clifford", idle_wires=False)
+    plt.show()
+a = input("Enter to continue. ")
+
+""" # Rows to be displayed in table
 rows = []
 # Corresponding phase of each bitstring
 measured_phases = []
@@ -273,10 +277,11 @@ for phase in measured_phases:
 # Print the rows in a table
 headers = ["Phase", "Fraction", "Guess for r"]
 df = pd.DataFrame(rows, columns=headers)
-print(df)
+print(df) """
 
 # Sampler primitive to obtain the probability distribution
 sampler = Sampler(backend)
+sampler.MAX_QUBITS_MEMORY = 27
 
 # Turn on dynamical decoupling with sequence XpXm
 sampler.options.dynamical_decoupling.enable = True
