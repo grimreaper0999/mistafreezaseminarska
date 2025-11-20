@@ -12,7 +12,7 @@ from qiskit.visualization import plot_histogram
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_ibm_runtime import SamplerV2 as Sampler
-from qiskit_ibm_runtime.fake_provider import FakeManilaV2
+from qiskit_ibm_runtime.fake_provider import FakeAuckland
 
 def M2mod15():
     """
