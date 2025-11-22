@@ -6,14 +6,23 @@ from math import floor, gcd, log
 from random import randint
 
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from qiskit.circuit.library import QFT, UnitaryGate
+from qiskit.circuit.library import UnitaryGate#, QFT 
+from qiskit.synthesis.qft import synth_qft_full as QFT
 from qiskit.transpiler import CouplingMap, generate_preset_pass_manager
 from qiskit.visualization import plot_histogram
 
-from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit_ibm_runtime import SamplerV2
+# from qiskit_ibm_runtime import QiskitRuntimeService
+# from qiskit_ibm_runtime import SamplerV2
+# from qiskit_ibm_runtime.fake_provider import FakeAuckland
 from qiskit.primitives import StatevectorSampler
-from qiskit_ibm_runtime.fake_provider import FakeAuckland
+
+"""
+The class ``qiskit.circuit.library.basis_change.qft.QFT`` is deprecated as of Qiskit 2.1. 
+It will be removed in Qiskit 3.0. ('Use qiskit.circuit.library.QFTGate 
+or qiskit.synthesis.qft.synth_qft_full instead, for access to all previous arguments.',)
+circuit.compose(QFT(num_control, inverse=True), qubits=control, inplace=True)
+Press enter to run the circuit on the FakeAuckland backend.
+"""
 
 N = 15
 n = floor(log(N - 1, 2)) + 1
@@ -22,6 +31,7 @@ def a2kmodN(a, k):
     """Compute a^{2^k} (mod N) by repeated squaring"""
     for _ in range(k):
         a = int(np.mod(a**2, N))
+    # print("Call to a2kmodN, got a: ", a)
     return a
 
 def mod_mult_gate(b):
@@ -32,8 +42,8 @@ def mod_mult_gate(b):
         print(f"Error: gcd({b},{N}) > 1")
     else:
         n = floor(log(N - 1, 2)) + 1
+        # print("Call to mod_mult_gate, got n: ", n)
         U = np.full((2**n, 2**n), 0)
-
         for x in range(N):
             U[b * x % N][x] = 1
         for x in range(N, 2**n):
@@ -44,15 +54,17 @@ def mod_mult_gate(b):
         return G
 from qiskit.primitives import StatevectorSampler
 
+from qiskit_aer import AerSimulator
 
+num_target = n  # for modular exponentiation operators
+num_control = 2 * num_target  # for enough precision of estimation
 def qua_order_subroutine(a):
     # Number of qubits
-    num_target = n  # for modular exponentiation operators
-    num_control = 2 * num_target  # for enough precision of estimation
-
+    print("call to qua_order_subroutine with a:", a, "; num_target: ", n, ", num_control: ", num_control)
     # List of M_b operators in order
     k_list = range(num_control)
     b_list = [a2kmodN(a, k) for k in k_list]
+    print("calling a2kmodN for k_list: ", k_list, "; b_list is ", b_list)
 
     # Initialize the circuit
     control = QuantumRegister(num_control, name="C")
@@ -82,11 +94,19 @@ def qua_order_subroutine(a):
     circuit.measure(control, output)
 
     #service = QiskitRuntimeService()
-    # TODO KATJA PROSIM PROSIM PROSIM PROBI USPOSOBIT TO STVAR Z BACKENDOM
-    backend = FakeAuckland() #service.backend("ibm_marrakesh")
-    pm = generate_preset_pass_manager(optimization_level=2, backend=backend)
 
-    a = input("Press enter to run the circuit on the FakeAuckland backend.")
+
+
+
+
+    aer_sim = AerSimulator()
+    pm = generate_preset_pass_manager(backend=aer_sim, optimization_level=1)
+    # backend = FakeAuckland() #service.backend("ibm_marrakesh")
+    # backend = AerSimulator.from_backend('statevector_simulator')
+
+    # pm = generate_preset_pass_manager(optimization_level=2, backend=backend)
+
+    # a = input("Press enter to run the circuit on the AerSimulator backend.")
     transpiled_circuit = pm.run(circuit)
 
     print(f"2q-depth: {transpiled_circuit.depth(lambda x: x.operation.num_qubits==2)}")
@@ -123,11 +143,18 @@ def qua_order_subroutine(a):
 
 FACTOR_FOUND = False
 
+# num_target = n  # for modular exponentiation operators
+# num_control = 2 * num_target  # for enough precision of estimation
+
+print("Initial num_target: ", num_target, ", num_control: ", num_control)
+
 while not FACTOR_FOUND:
 
     a = randint(2, N-1)
 
     d = gcd(a, N)
+
+    print("Loop: got a: ", a, "; d: ", d)
 
     if d != 1:
         print(f"*** Non-trivial factor found: {d} ***")
@@ -153,12 +180,16 @@ while not FACTOR_FOUND:
             # Guess the order from phase
             frac = Fraction(phase).limit_denominator(N)
             r = frac.denominator  # order = r
+            print("Loop - decimal: ", decimal, "; phase: ", phase, "; frac: ", frac)
 
             if phase != 0:
                 # Guesses for factors are gcd(a^{r / 2} ± 1, 15)
                 if r % 2 == 0:
                     x = pow(a, r // 2, N) - 1
+                    if x == 0:
+                        continue
                     d = gcd(x, N)
+                    print("factor guesses - x: ", x, "; d: ", d)
                     if d > 1:
                         FACTOR_FOUND = True
-                        print(f"*** Non-trivial factor found: {x} ***")
+                        print(f"*** Non-trivial factor found: {d} ***")
