@@ -3,7 +3,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from fractions import Fraction
 from math import floor, gcd, log
-from Random.random import randint
+from random import randint
 
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.circuit.library import QFT, UnitaryGate
@@ -131,8 +131,11 @@ while not FACTOR_FOUND:
 
     if d != 1:
         print(f"*** Non-trivial factor found: {d} ***")
+        break
     else:
         num_attempt = 0
+
+        counts_keep = qua_order_subroutine(a)
 
         while not FACTOR_FOUND and num_attempt < len(list(counts_keep.keys())):
 
