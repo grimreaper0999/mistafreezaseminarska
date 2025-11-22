@@ -3,7 +3,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from fractions import Fraction
 from math import floor, gcd, log
-
+from Random.random import randint
 
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.circuit.library import QFT, UnitaryGate
@@ -11,7 +11,8 @@ from qiskit.transpiler import CouplingMap, generate_preset_pass_manager
 from qiskit.visualization import plot_histogram
 
 from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit_ibm_runtime import SamplerV2 as Sampler
+from qiskit_ibm_runtime import SamplerV2
+from qiskit.primitives import StatevectorSampler
 from qiskit_ibm_runtime.fake_provider import FakeAuckland
 
 N = 15
@@ -41,6 +42,7 @@ def mod_mult_gate(b):
         G = UnitaryGate(U)
         G.name = f"M_{b}"
         return G
+from qiskit.primitives import StatevectorSampler
 
 
 def qua_order_subroutine(a):
@@ -80,6 +82,7 @@ def qua_order_subroutine(a):
     circuit.measure(control, output)
 
     #service = QiskitRuntimeService()
+    # TODO KATJA PROSIM PROSIM PROSIM PROBI USPOSOBIT TO STVAR Z BACKENDOM
     backend = FakeAuckland() #service.backend("ibm_marrakesh")
     pm = generate_preset_pass_manager(optimization_level=2, backend=backend)
 
@@ -90,59 +93,22 @@ def qua_order_subroutine(a):
     print(f"2q-size: {transpiled_circuit.size(lambda x: x.operation.num_qubits==2)}")
     print(f"Operator counts: {transpiled_circuit.count_ops()}")
 
-    """ # Rows to be displayed in table
-    rows = []
-    # Corresponding phase of each bitstring
-    measured_phases = []
-
-    for output in counts:
-        decimal = int(output, 2)  # Convert bitstring to decimal
-        phase = decimal / (2**num_control)  # Find corresponding eigenvalue
-        measured_phases.append(phase)
-        # Add these values to the rows in our table:
-        rows.append(
-            [
-                f"{output}(bin) = {decimal:>3}(dec)",
-                f"{decimal}/{2 ** num_control} = {phase:.2f}",
-            ]
-        )
-
-    # Print the rows in a table
-    headers = ["Register Output", "Phase"]
-    df = pd.DataFrame(rows, columns=headers)
-    print(df)
-
-    # Rows to be displayed in a table
-    rows = []
-
-    for phase in measured_phases:
-        frac = Fraction(phase).limit_denominator(15)
-        rows.append(
-            [phase, f"{frac.numerator}/{frac.denominator}", frac.denominator]
-        )
-
-    # Print the rows in a table
-    headers = ["Phase", "Fraction", "Guess for r"]
-    df = pd.DataFrame(rows, columns=headers)
-    print(df) """
-
     # Sampler primitive to obtain the probability distribution
-    sampler = Sampler(backend)
-    sampler.MAX_QUBITS_MEMORY = 27
+    #sampler = SamplerV2(backend)
+    sampler = StatevectorSampler(default_shots=1)
+    #sampler.MAX_QUBITS_MEMORY = 27
 
     # Turn on dynamical decoupling with sequence XpXm
-    sampler.options.dynamical_decoupling.enable = True
-    sampler.options.dynamical_decoupling.sequence_type = "XpXm"
+    #sampler.options.dynamical_decoupling.enable = True
+    #sampler.options.dynamical_decoupling.sequence_type = "XpXm"
     # Enable gate twirling
-    sampler.options.twirling.enable_gates = True
+    #sampler.options.twirling.enable_gates = True
 
     pub = transpiled_circuit
-    job = sampler.run([pub], shots=1024)
+    job = sampler.run([pub], shots=1)
 
     result = job.result()[0]
     counts = result.data["out"].get_counts()
-
-    plot_histogram(counts, figsize=(35, 5))
 
     # Dictionary of bitstrings and their counts to keep
     counts_keep = {}
@@ -153,34 +119,43 @@ def qua_order_subroutine(a):
         if value > threshold:
             counts_keep[key] = value
 
-    print(counts_keep)
+    return counts_keep
 
 FACTOR_FOUND = False
-num_attempt = 0
 
 while not FACTOR_FOUND:
-    print(f"\nATTEMPT {num_attempt}:")
-    # Here, we get the bitstring by iterating over outcomes
-    # of a previous hardware run with multiple shots.
-    # Instead, we can also perform a single-shot measurement
-    # here in the loop.
-    bitstring = list(counts_keep.keys())[num_attempt]
-    num_attempt += 1
-    # Find the phase from measurement
-    decimal = int(bitstring, 2)
-    phase = decimal / (2**num_control)  # phase = k / r
-    print(f"Phase: theta = {phase}")
 
-    # Guess the order from phase
-    frac = Fraction(phase).limit_denominator(N)
-    r = frac.denominator  # order = r
-    print(f"Order of {a} modulo {N} estimated as: r = {r}")
+    a = randint(2, N-1)
 
-    if phase != 0:
-        # Guesses for factors are gcd(a^{r / 2} ± 1, 15)
-        if r % 2 == 0:
-            x = pow(a, r // 2, N) - 1
-            d = gcd(x, N)
-            if d > 1:
-                FACTOR_FOUND = True
-                print(f"*** Non-trivial factor found: {x} ***")
+    d = gcd(a, N)
+
+    if d != 1:
+        print(f"*** Non-trivial factor found: {d} ***")
+    else:
+        num_attempt = 0
+
+        while not FACTOR_FOUND and num_attempt < len(list(counts_keep.keys())):
+
+            # Here, we get the bitstring by iterating over outcomes
+            # of a previous hardware run with multiple shots.
+            # Instead, we can also perform a single-shot measurement
+            # here in the loop.
+            bitstring = list(counts_keep.keys())[num_attempt]
+            num_attempt += 1
+
+            # Find the phase from measurement
+            decimal = int(bitstring, 2)
+            phase = decimal / (2**num_control)  # phase = k / r
+
+            # Guess the order from phase
+            frac = Fraction(phase).limit_denominator(N)
+            r = frac.denominator  # order = r
+
+            if phase != 0:
+                # Guesses for factors are gcd(a^{r / 2} ± 1, 15)
+                if r % 2 == 0:
+                    x = pow(a, r // 2, N) - 1
+                    d = gcd(x, N)
+                    if d > 1:
+                        FACTOR_FOUND = True
+                        print(f"*** Non-trivial factor found: {x} ***")
