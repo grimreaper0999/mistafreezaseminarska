@@ -63,13 +63,14 @@ def qua_order_subroutine(a):
     # Simulate using Cirq's simulator
     simulator = cirq.Simulator()
     result = simulator.run(circuit, repetitions=1)
-    return result
+    return result.measurements['q(0),q(1),q(2),q(3),q(4),q(5),q(6),q(7)']
+    # return result
 
 FACTOR_FOUND = False
 print("Initial num_target:", n, ", num_control:", 2 * n)
 
 while not FACTOR_FOUND:
-    a = randint(2, N - 1)
+    a = randint(3, N - 1)
     d = gcd(a, N)
 
     print("Loop: got a:", a, "; d:", d)
@@ -83,7 +84,7 @@ while not FACTOR_FOUND:
         counts_keep = qua_order_subroutine(a)
 
         while not FACTOR_FOUND and num_attempt < len(counts_keep):
-            bitstring = counts_keep[num_attempt]
+            bitstring = "".join(map(lambda x: str(x), counts_keep[num_attempt]))
             num_attempt += 1
 
             # Find the phase from measurement
