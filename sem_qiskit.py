@@ -150,7 +150,7 @@ print("Initial num_target: ", num_target, ", num_control: ", num_control)
 
 while not FACTOR_FOUND:
 
-    a = randint(2, N-1)
+    a = randint(3, N-1)
 
     d = gcd(a, N)
 
