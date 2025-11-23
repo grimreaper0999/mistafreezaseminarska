@@ -41,7 +41,6 @@ def mod_mult_gate(b):
     if gcd(b, N) > 1:
         print(f"Error: gcd({b},{N}) > 1")
     else:
-        n = floor(log(N - 1, 2)) + 1
         # print("Call to mod_mult_gate, got n: ", n)
         U = np.full((2**n, 2**n), 0)
         for x in range(N):
@@ -125,7 +124,7 @@ def qua_order_subroutine(a):
     #sampler.options.twirling.enable_gates = True
 
     pub = transpiled_circuit
-    job = sampler.run([pub], shots=1)
+    job = sampler.run([pub], shots=1000)
 
     result = job.result()[0]
     counts = result.data["out"].get_counts()
@@ -163,6 +162,14 @@ while not FACTOR_FOUND:
         num_attempt = 0
 
         counts_keep = qua_order_subroutine(a)
+        print(counts_keep)
+        un = np.unique(counts_keep, return_counts=True)
+        funy = list(map(lambda bits: "".join(str(bits)), counts_keep))
+        # print(funy)
+        # print(un)
+        
+        plt.hist(funy,  color='skyblue', edgecolor='black', bins=2**8)
+        # plt.show()
 
         while not FACTOR_FOUND and num_attempt < len(list(counts_keep.keys())):
 
@@ -182,14 +189,14 @@ while not FACTOR_FOUND:
             r = frac.denominator  # order = r
             print("Loop - decimal: ", decimal, "; phase: ", phase, "; frac: ", frac)
 
-            if phase != 0:
-                # Guesses for factors are gcd(a^{r / 2} ± 1, 15)
-                if r % 2 == 0:
-                    x = pow(a, r // 2, N) - 1
-                    if x == 0:
-                        continue
-                    d = gcd(x, N)
-                    print("factor guesses - x: ", x, "; d: ", d)
-                    if d > 1:
-                        FACTOR_FOUND = True
-                        print(f"*** Non-trivial factor found: {d} ***")
+
+            # Guesses for factors are gcd(a^{r / 2} ± 1, 15)
+            if phase != 0 and r % 2 == 0:
+                x = pow(a, r // 2, N) - 1
+                if x == 0:
+                    continue
+                d = gcd(x, N)
+                print("factor guesses - x: ", x, "; d: ", d)
+                if d > 1:
+                    FACTOR_FOUND = True
+                    print(f"*** Non-trivial factor found: {d} ***")
