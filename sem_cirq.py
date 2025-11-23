@@ -31,6 +31,80 @@ def mod_mult_gate(b):
             U[x][x] = 1
         return U
 
+
+
+def add_mod_N(circuit, target, ancilla, N):
+    """Adds N to target if overflow, using ancilla."""
+    n = len(target)
+
+    # Add N (in binary)
+    for i, bit in enumerate(bin(N)[2:].zfill(n)[::-1]):
+        if bit == '1':
+            circuit.append(cirq.X(target[i]))
+
+    # Check overflow (i.e., msb == 1)
+    circuit.append(cirq.CNOT(target[-1], ancilla))
+
+    # If overflow, subtract N
+    for i, bit in enumerate(bin(N)[2:].zfill(n)[::-1]):
+        if bit == '1':
+            circuit.append(cirq.CCX(ancilla, target[i], target[i]))
+
+    # Uncompute ancilla
+    circuit.append(cirq.CNOT(target[-1], ancilla))
+
+
+def controlled_add_mod_N(circuit, control, target, ancilla, k, N):
+    """Adds k mod N to target register under control."""
+    n = len(target)
+    k_bits = bin(k)[2:].zfill(n)[::-1]
+
+    # Add k
+    for i, bit in enumerate(k_bits):
+        if bit == '1':
+            circuit.append(cirq.CCX(control, target[i], target[i]))
+    
+    # Reduce mod N to keep within range
+    add_mod_N(circuit, target, ancilla, N)
+
+
+def controlled_add_mod_N(circuit, control, target, ancilla, k, N):
+    """Adds k mod N to target register under control."""
+    n = len(target)
+    k_bits = bin(k)[2:].zfill(n)[::-1]
+
+    # Add k
+    for i, bit in enumerate(k_bits):
+        if bit == '1':
+            circuit.append(cirq.CCX(control, target[i], target[i]))
+    
+    # Reduce mod N to keep within range
+    add_mod_N(circuit, target, ancilla, N)
+
+def modular_multiply(circuit, control, x_reg, y_reg, ancilla, b, N):
+    """Applies y := (y + b*x) mod N controlled by control qubit."""
+    n = len(x_reg)
+
+    for i in range(n):
+        b_shift = (b * (2**i)) % N
+        if b_shift != 0:
+            controlled_add_mod_N(
+                circuit,
+                control=control,
+                target=y_reg,
+                ancilla=ancilla,
+                k=b_shift,
+                N=N
+            )
+
+
+def modular_mult_gate(control, x_reg, y_reg, ancilla, b, N):
+    circuit = cirq.Circuit()
+    modular_multiply(circuit, control, x_reg, y_reg, ancilla, b, N)
+    return circuit
+
+
+
 def qua_order_subroutine(a):
     print("Running qua_order_subroutine with a:", a, "; num_target:", num_target, ", num_control:", num_control)
 
@@ -51,6 +125,17 @@ def qua_order_subroutine(a):
         circuit.append(cirq.H(qubit))  # Apply Hadamard gate
         if b_list[k] == 1:
             break
+        else:
+            # control register (2n)
+            control = qubits[:num_control]
+
+            # target register (n qubits)
+            target = qubits[num_control : num_control + num_target]
+            x_reg = target
+            y_reg = target
+            # ancilla qubit
+            ancilla = qubits[-1]
+            circuit += modular_mult_gate(control, x_reg, y_reg, ancilla, b=b_list[k], N=15)
             # Create modular multiplication using controlled gates (this would need implementation)
             # Example: controlled gates and U here need custom implementation
 

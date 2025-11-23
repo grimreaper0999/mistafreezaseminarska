@@ -10,6 +10,8 @@ from qiskit.circuit.library import UnitaryGate#, QFT
 from qiskit.synthesis.qft import synth_qft_full as QFT
 from qiskit.transpiler import CouplingMap, generate_preset_pass_manager
 from qiskit.visualization import plot_histogram
+from qiskit import transpile
+
 
 # from qiskit_ibm_runtime import QiskitRuntimeService
 # from qiskit_ibm_runtime import SamplerV2
@@ -99,22 +101,23 @@ def qua_order_subroutine(a):
 
 
     aer_sim = AerSimulator()
-    pm = generate_preset_pass_manager(backend=aer_sim, optimization_level=1)
+    # pm = generate_preset_pass_manager(backend=aer_sim, optimization_level=1)
     # backend = FakeAuckland() #service.backend("ibm_marrakesh")
     # backend = AerSimulator.from_backend('statevector_simulator')
 
     # pm = generate_preset_pass_manager(optimization_level=2, backend=backend)
 
     # a = input("Press enter to run the circuit on the AerSimulator backend.")
-    transpiled_circuit = pm.run(circuit)
-
+    # transpiled_circuit = pm.run(circuit)
+    
+    transpiled_circuit = transpile(circuit, aer_sim)
     print(f"2q-depth: {transpiled_circuit.depth(lambda x: x.operation.num_qubits==2)}")
     print(f"2q-size: {transpiled_circuit.size(lambda x: x.operation.num_qubits==2)}")
     print(f"Operator counts: {transpiled_circuit.count_ops()}")
 
     # Sampler primitive to obtain the probability distribution
     #sampler = SamplerV2(backend)
-    sampler = StatevectorSampler(default_shots=1)
+    # sampler = StatevectorSampler(default_shots=1)
     #sampler.MAX_QUBITS_MEMORY = 27
 
     # Turn on dynamical decoupling with sequence XpXm
@@ -123,11 +126,15 @@ def qua_order_subroutine(a):
     # Enable gate twirling
     #sampler.options.twirling.enable_gates = True
 
-    pub = transpiled_circuit
-    job = sampler.run([pub], shots=1000)
-
-    result = job.result()[0]
-    counts = result.data["out"].get_counts()
+    # pub = transpiled_circuit
+    # job = sampler.run([pub], shots=1000)
+    result = aer_sim.run(transpiled_circuit).result()
+    counts = result.get_counts(transpiled_circuit)
+    # print(counts)
+    # plot_histogram(counts)
+    # plt.show()
+    # result = job.result()[0]
+    # counts = result.data["out"].get_counts()
 
     # Dictionary of bitstrings and their counts to keep
     counts_keep = {}
