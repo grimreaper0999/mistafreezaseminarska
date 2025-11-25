@@ -3,9 +3,14 @@ import numpy as np
 from fractions import Fraction
 from math import floor, gcd, log
 from random import randint
+from matplotlib import axes
+import matplotlib.pyplot as plt
 
 N = 15
 n = floor(log(N - 1, 2)) + 1
+
+num_target = n
+num_control = 2 * num_target
 
 def a2kmodN(a, k):
     """Compute a^{2^k} (mod N) by repeated squaring"""
@@ -26,9 +31,81 @@ def mod_mult_gate(b):
             U[x][x] = 1
         return U
 
+
+
+def add_mod_N(circuit, target, ancilla, N):
+    """Adds N to target if overflow, using ancilla."""
+    n = len(target)
+
+    # Add N (in binary)
+    for i, bit in enumerate(bin(N)[2:].zfill(n)[::-1]):
+        if bit == '1':
+            circuit.append(cirq.X(target[i]))
+
+    # Check overflow (i.e., msb == 1)
+    circuit.append(cirq.CNOT(target[-1], ancilla))
+
+    # If overflow, subtract N
+    for i, bit in enumerate(bin(N)[2:].zfill(n)[::-1]):
+        if bit == '1':
+            circuit.append(cirq.CCX(ancilla, target[i], target[i]))
+
+    # Uncompute ancilla
+    circuit.append(cirq.CNOT(target[-1], ancilla))
+
+
+def controlled_add_mod_N(circuit, control, target, ancilla, k, N):
+    """Adds k mod N to target register under control."""
+    n = len(target)
+    k_bits = bin(k)[2:].zfill(n)[::-1]
+
+    # Add k
+    for i, bit in enumerate(k_bits):
+        if bit == '1':
+            circuit.append(cirq.CCX(control, target[i], target[i]))
+    
+    # Reduce mod N to keep within range
+    add_mod_N(circuit, target, ancilla, N)
+
+
+def controlled_add_mod_N(circuit, control, target, ancilla, k, N):
+    """Adds k mod N to target register under control."""
+    n = len(target)
+    k_bits = bin(k)[2:].zfill(n)[::-1]
+
+    # Add k
+    for i, bit in enumerate(k_bits):
+        if bit == '1':
+            circuit.append(cirq.CCX(control, target[i], target[i]))
+    
+    # Reduce mod N to keep within range
+    add_mod_N(circuit, target, ancilla, N)
+
+def modular_multiply(circuit, control, x_reg, y_reg, ancilla, b, N):
+    """Applies y := (y + b*x) mod N controlled by control qubit."""
+    n = len(x_reg)
+
+    for i in range(n):
+        b_shift = (b * (2**i)) % N
+        if b_shift != 0:
+            controlled_add_mod_N(
+                circuit,
+                control=control,
+                target=y_reg,
+                ancilla=ancilla,
+                k=b_shift,
+                N=N
+            )
+
+
+def modular_mult_gate(control, x_reg, y_reg, ancilla, b, N):
+    circuit = cirq.Circuit()
+    modular_multiply(circuit, control, x_reg, y_reg, ancilla, b, N)
+    return circuit
+
+
+
 def qua_order_subroutine(a):
-    num_target = n
-    num_control = 2 * num_target
     print("Running qua_order_subroutine with a:", a, "; num_target:", num_target, ", num_control:", num_control)
 
     # List of M_b operators in order
@@ -46,28 +123,36 @@ def qua_order_subroutine(a):
     # Add Hadamard gates and modular multiplication gates
     for k, qubit in enumerate(qubits[:num_control]):
         circuit.append(cirq.H(qubit))  # Apply Hadamard gate
-        b = b_list[k]
-        if b != 1:
+        if b_list[k] == 1:
+            break
+        else:
+            # control register (2n)
+            control = qubits[:num_control]
+
+            # target register (n qubits)
+            target = qubits[num_control : num_control + num_target]
+            x_reg = target
+            y_reg = target
+            # ancilla qubit
+            ancilla = qubits[-1]
+            circuit += modular_mult_gate(control, x_reg, y_reg, ancilla, b=b_list[k], N=15)
             # Create modular multiplication using controlled gates (this would need implementation)
             # Example: controlled gates and U here need custom implementation
-            pass
-        else:
-            break
 
     # Apply inverse QFT (not directly available in Cirq, but you can manually implement it)
     # For simplicity, we'll omit QFT here, but you can implement QFT manually
-
+    circuit.append(cirq.qft(*qubits[:num_control]))
     # Measure the control qubits
     circuit.append(cirq.measure(*qubits[:num_control]))
 
     # Simulate using Cirq's simulator
     simulator = cirq.Simulator()
-    result = simulator.run(circuit, repetitions=1)
+    result = simulator.run(circuit, repetitions=1000)
     return result.measurements['q(0),q(1),q(2),q(3),q(4),q(5),q(6),q(7)']
     # return result
 
 FACTOR_FOUND = False
-print("Initial num_target:", n, ", num_control:", 2 * n)
+print("Initial num_target:", num_target, ", num_control:", num_control)
 
 while not FACTOR_FOUND:
     a = randint(3, N - 1)
@@ -82,13 +167,20 @@ while not FACTOR_FOUND:
         num_attempt = 0
 
         counts_keep = qua_order_subroutine(a)
+        # print(counts_keep)
+        print(np.unique(counts_keep, return_counts=True, axis=0))
+        # cirq.plot_state_histogram(data=counts_keep)
+        funy = list(map(lambda bits: "".join(str(bits)), counts_keep))
+        # print(funy)
+        plt.hist(funy, color='skyblue', edgecolor='black', bins=2**8)
+        plt.show()
 
         while not FACTOR_FOUND and num_attempt < len(counts_keep):
             bitstring = "".join(map(lambda x: str(x), counts_keep[num_attempt]))
             num_attempt += 1
-
             # Find the phase from measurement
             decimal = int(bitstring, 2)
+            
             phase = decimal / (2 ** (2 * n))  # phase = k / r
 
             # Guess the order from phase
@@ -96,14 +188,13 @@ while not FACTOR_FOUND:
             r = frac.denominator  # order = r
             print("Loop - decimal:", decimal, "; phase:", phase, "; frac:", frac)
 
-            if phase != 0:
+            if phase != 0 and r % 2 == 0:
                 # Guesses for factors are gcd(a^{r / 2} ± 1, N)
-                if r % 2 == 0:
-                    x = pow(a, r // 2, N) - 1
-                    if x == 0:
-                        continue
-                    d = gcd(x, N)
-                    print("factor guesses - x:", x, "; d:", d)
-                    if d > 1:
-                        FACTOR_FOUND = True
-                        print(f"*** Non-trivial factor found: {d} ***")
+                x = pow(a, r // 2, N) - 1
+                if x == 0:
+                    continue
+                d = gcd(x, N)
+                print("factor guesses - x:", x, "; d:", d)
+                if d > 1:
+                    FACTOR_FOUND = True
+                    print(f"*** Non-trivial factor found: {d} ***")
